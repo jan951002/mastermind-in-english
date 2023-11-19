@@ -1,5 +1,5 @@
 package com.poli.programmingparadigms.mastermindinenglish;
 
-public class MastermindInEnglishLauncher {
+public class MastermindInEnglishMain {
 
 }
