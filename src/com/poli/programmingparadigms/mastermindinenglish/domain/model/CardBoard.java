@@ -65,12 +65,12 @@ public class CardBoard {
 					cardSelected.turn();
 					pairCounter++;
 					validateGameStatus();
+					cardTurnedIndex = VALUE_DEFAULT_TURNED_INDEX;
 				} else {
 					previouslyTurnedCard.turn();
 					countFailedAttemp();
 				}
 
-				cardTurnedIndex = VALUE_DEFAULT_TURNED_INDEX;
 			}
 		} else {
 			throw new ArrayIndexOutOfBoundsException("Invalid index");
@@ -105,6 +105,7 @@ public class CardBoard {
 	private void countFailedAttemp() throws GameOverException {
 		failedAttempts++;
 		if (failedAttempts >= MAXIMUM_FAILED_ATTEMPS) {
+			completed = true;
 			throw new GameOverException("Game over");
 		}
 	}

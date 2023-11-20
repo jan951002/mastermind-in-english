@@ -78,4 +78,15 @@ public class Card {
 		this.paired = paired;
 	}
 
+	@Override
+	public String toString() {
+		String result;
+		if (type == CardType.TEXT) {
+			result = text;
+		} else {
+			result = imagePath;
+		}
+		return result;
+	}
+
 }
