@@ -65,11 +65,11 @@ public class CardBoard {
 					cardSelected.turn();
 					pairCounter++;
 					validateGameStatus();
-					cardTurnedIndex = VALUE_DEFAULT_TURNED_INDEX;
 				} else {
 					previouslyTurnedCard.turn();
 					countFailedAttemp();
 				}
+				cardTurnedIndex = VALUE_DEFAULT_TURNED_INDEX;
 
 			}
 		} else {
