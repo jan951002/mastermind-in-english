@@ -13,6 +13,8 @@ import com.poli.programmingparadigms.mastermindinenglish.domain.model.CardBoard;
  */
 public class CardBoardService {
 
+	CardBoard cardBoard;
+
 	/**
 	 * Starts a new game with the provided list of cards.
 	 *
@@ -21,8 +23,6 @@ public class CardBoardService {
 	public void newGame(List<Card> cards) {
 		cardBoard = new CardBoard(cards);
 	}
-
-	private CardBoard cardBoard;
 
 	/**
 	 * Checks if the game board is completed.
