@@ -3,6 +3,7 @@ package com.poli.programmingparadigms.mastermindinenglish.controller;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 import com.poli.programmingparadigms.mastermindinenglish.domain.exception.GameOverException;
@@ -18,38 +19,107 @@ import com.poli.programmingparadigms.mastermindinenglish.domain.service.CardBoar
 public class CardBoardConsoleController {
 
 	/**
+	 * Number of columns to show in the matrix.
+	 */
+
+	private static final int NUMBER_COLUMS_TO_SHOW = 2;
+
+	/**
+	 * Number of rows to show in the matrix.
+	 */
+	private static final int NUMBER_ROWS_TO_SHOW = 4;
+
+	/**
+	 * Service for managing the memory game board.
+	 */
+	private CardBoardService cardBoardService;
+
+	public CardBoardConsoleController() {
+		this.cardBoardService = new CardBoardService();
+	}
+
+	/**
 	 * Initiates and plays the memory game in the console. The player is prompted to
 	 * enter card positions to match until the game is completed.
 	 */
 	public void play() {
+		showWelcomeMessage();
 
-		final CardBoardService cardBoardService = new CardBoardService();
 		final List<Card> cards = getAnimalCards();
 
+		Collections.shuffle(cards);
+
 		cardBoardService.newGame(cards);
-		printMatrix(cards, 2, 4);
 
-		Scanner scanner;
+		try (Scanner scanner = new Scanner(System.in)) {
+			while (!cardBoardService.isCompleted()) {
+				printMatrix(cards);
+				handleUserInput(cards, scanner);
+			}
+			System.out.println("Game completed");
+		} catch (NoSuchElementException e) {
+			System.out.println("Invalid input. Please enter a number.");
+		}
+	}
 
-		while (!cardBoardService.isCompleted()) {
-			scanner = new Scanner(System.in);
-			System.out.println("Enter a card position to match. You can enter a value from 0 to " + (cards.size() - 1));
-			int cardIndex = scanner.nextInt();
-			try {
-				if (cards.get(cardIndex).isPaired()) {
-					System.out.println("Card is already paired");
-				} else if (cards.get(cardIndex).isTurnedOver()) {
-					System.out.println("Card is already turned over");
-				} else {
-					cardBoardService.turnCard(cardIndex);
+	/**
+	 * Displays a welcome message to the player.
+	 */
+	private void showWelcomeMessage() {
+		System.out.println("Welcome to Mastermind in English!");
+		System.out.println("In this memory game, your goal is to match pairs of cards.");
+		System.out.println("Each card has a text representation and an image representation.");
+		System.out.println("Pay attention to the cards and try to find all the matching pairs.");
+		System.out.println("Let the game begin! Have fun!");
+		System.out.println();
+	}
+
+	/**
+	 * Handles user input for selecting a card position.
+	 *
+	 * @param cards   The list of cards.
+	 * @param scanner Scanner for user input.
+	 */
+	private void handleUserInput(final List<Card> cards, final Scanner scanner) {
+
+		System.out.println("Enter a card position to match. You can enter a value from 0 to " + (cards.size() - 1));
+		int cardIndex = -1;
+
+		while (cardIndex < 0 || cardIndex >= cards.size()) {
+			if (scanner.hasNextInt()) {
+				cardIndex = scanner.nextInt();
+				if (cardIndex < 0 || cardIndex >= cards.size()) {
+					System.out.println("Enter a valid card position");
 				}
-			} catch (ArrayIndexOutOfBoundsException | GameOverException e) {
-				e.printStackTrace();
-				System.out.println(e.getMessage());
+			} else {
+				System.out.println("Invalid input. Please enter a number.");
+				scanner.next();
 			}
 		}
 
-		System.out.println("Game completed");
+		processCardSelection(cards, cardIndex);
+
+	}
+
+	/**
+	 * Processes the selected card.
+	 *
+	 * @param cards     The list of cards.
+	 * @param cardIndex The index of the selected card.
+	 */
+	private void processCardSelection(final List<Card> cards, final int cardIndex) {
+		try {
+			Card selectedCard = cards.get(cardIndex);
+			if (selectedCard.isPaired()) {
+				System.out.println("Card is already paired");
+			} else if (selectedCard.isTurnedOver()) {
+				System.out.println("Card is already turned over");
+			} else {
+				cardBoardService.turnCard(cardIndex);
+			}
+		} catch (ArrayIndexOutOfBoundsException | GameOverException e) {
+			System.out.println(e.getMessage());
+		}
 	}
 
 	/**
@@ -72,28 +142,32 @@ public class CardBoardConsoleController {
 		cards.add(new Card("spider", null, CardType.TEXT, false, "PSPIDER-01", false));
 		cards.add(new Card(null, "spider-image.jpg", CardType.IMAGE, false, "PSPIDER-01", false));
 
-		Collections.shuffle(cards);
-
 		return cards;
 	}
 
 	/**
 	 * Prints a matrix representation of the cards to the console.
 	 *
-	 * @param cards   The list of cards to be printed.
-	 * @param rows    The number of rows in the matrix.
-	 * @param columns The number of columns in the matrix.
+	 * @param cards The list of cards to be printed.
 	 */
-	private void printMatrix(List<Card> cards, int rows, int columns) {
+	private void printMatrix(final List<Card> cards) {
 		int index = 0;
 
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < columns; j++) {
+		for (int i = 0; i < NUMBER_ROWS_TO_SHOW; i++) {
+			for (int j = 0; j < NUMBER_COLUMS_TO_SHOW; j++) {
 				if (index < cards.size()) {
-					Card card = cards.get(index++);
-					System.out.printf("%-20s", card.toString());
+					final Card card = cards.get(index++);
+					final String complementText;
+					if (card.isPaired()) {
+						complementText = " (OK)";
+					} else if (card.isTurnedOver()) {
+						complementText = " (Turned)";
+					} else {
+						complementText = "";
+					}
+					System.out.printf("%-40s", "(" + (index - 1) + ") " + card.toString() + complementText);
 				} else {
-					System.out.printf("%-20s", "EMPTY");
+					System.out.printf("%-40s", "EMPTY");
 				}
 			}
 			System.out.println();
