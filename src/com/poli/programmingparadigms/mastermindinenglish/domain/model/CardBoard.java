@@ -33,6 +33,15 @@ public class CardBoard {
 	}
 
 	/**
+	 * Retrieves the list of cards currently in play.
+	 *
+	 * @return The list of cards in play.
+	 */
+	public List<Card> getCards() {
+		return cards;
+	}
+
+	/**
 	 * Checks if the game board is completed.
 	 *
 	 * @return True if the game board is completed, false otherwise.
