@@ -2,24 +2,33 @@ package com.poli.programmingparadigms.mastermindinenglish;
 
 import java.awt.EventQueue;
 
-import com.poli.programmingparadigms.mastermindinenglish.controller.CardBoardConsoleController;
 import com.poli.programmingparadigms.mastermindinenglish.controller.CardBoardUIController;
-import com.poli.programmingparadigms.mastermindinenglish.domain.service.CardBoardService;
 import com.poli.programmingparadigms.mastermindinenglish.domain.service.CardService;
 import com.poli.programmingparadigms.mastermindinenglish.view.MastermindInEnglishFrame;
 
 /**
- * Main class for starting the Mastermind in English UI-based memory game. It
- * creates an instance of {@link CardBoardConsoleController} and initiates the
- * game by calling the {@code play()} method.
+ * The main class to launch the Mastermind in English game.
+ *
+ * <p>
+ * The {@code MastermindInEnglishMain} class contains the main method to start
+ * the Mastermind in English game. It initializes the necessary components, such
+ * as the {@code CardService}, {@code CardBoardUIController}, and
+ * {@code MastermindInEnglishFrame}, to begin the game.
+ * </p>
  */
 public class MastermindInEnglishMain {
 
 	/**
-	 * The entry point of the application. Creates a
-	 * {@code CardBoardConsoleController} and initiates the memory game.
+	 * The main entry point for the Mastermind in English game.
 	 *
-	 * @param args the command-line arguments (unused in this application).
+	 * <p>
+	 * This method is responsible for initializing the game components, including
+	 * the {@code CardService}, {@code CardBoardUIController}, and
+	 * {@code MastermindInEnglishFrame}. It is invoked by the Java Virtual Machine
+	 * (JVM) when the program is started.
+	 * </p>
+	 *
+	 * @param args The command-line arguments (not used in this application).
 	 */
 	public static void main(String[] args) {
 
@@ -27,9 +36,7 @@ public class MastermindInEnglishMain {
 			public void run() {
 
 				final CardService cardService = new CardService();
-				final CardBoardService cardBoardService = new CardBoardService();
-				final CardBoardUIController cardBoardUIController = new CardBoardUIController(cardService,
-						cardBoardService);
+				final CardBoardUIController cardBoardUIController = new CardBoardUIController(cardService);
 
 				new MastermindInEnglishFrame(cardBoardUIController);
 			}

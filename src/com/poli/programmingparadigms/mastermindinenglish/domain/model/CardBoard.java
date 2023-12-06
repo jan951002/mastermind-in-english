@@ -7,29 +7,41 @@ import com.poli.programmingparadigms.mastermindinenglish.domain.exception.GameOv
 /**
  * Represents the game board for the memory game.
  *
- * @param cards           The list of cards on the board.
- * @param failedAttempts  The number of failed attempts by the player.
- * @param cardTurnedIndex The index of the currently turned-over card.
- * @param pairCounter     The count of pairs successfully matched.
- * @param completed       Indicates if the game board is completed.
+ * @param cards                 The list of cards on the board.
+ * @param failedAttempts        The number of failed attempts by the player.
+ * @param firstCardTurnedIndex  The index of the first turned-over card.
+ * @param secondCardTurnedIndex The index of the second turned-over card.
+ * @param pairCounter           The count of pairs successfully matched.
+ * @param completed             Indicates if the game board is completed.
  */
 public class CardBoard {
 
 	private final static int MAXIMUM_FAILED_ATTEMPS = 3;
-	private final static int VALUE_DEFAULT_TURNED_INDEX = -1;
+	public final static int VALUE_DEFAULT_TURNED_INDEX = -1;
 
 	private List<Card> cards;
 	private int failedAttempts;
-	private int cardTurnedIndex;
+	private int firstCardTurnedIndex;
+	private int secondCardTurnedIndex;
 	private int pairCounter;
-	private boolean completed;
+	private CardBoardStatus status;
 
 	public CardBoard(List<Card> cards) {
 		this.cards = cards;
 		this.failedAttempts = 0;
-		this.cardTurnedIndex = VALUE_DEFAULT_TURNED_INDEX;
+		this.firstCardTurnedIndex = VALUE_DEFAULT_TURNED_INDEX;
+		this.secondCardTurnedIndex = VALUE_DEFAULT_TURNED_INDEX;
 		this.pairCounter = 0;
-		this.completed = false;
+		this.status = CardBoardStatus.IN_PROGRESS;
+	}
+
+	/**
+	 * Retrieves the index of the first card turned over.
+	 *
+	 * @return The index of the first turned-over card.
+	 */
+	public int getFirstCardTurnedIndex() {
+		return firstCardTurnedIndex;
 	}
 
 	/**
@@ -41,49 +53,57 @@ public class CardBoard {
 		return cards;
 	}
 
-	/**
-	 * Checks if the game board is completed.
-	 *
-	 * @return True if the game board is completed, false otherwise.
-	 */
-	public boolean isCompleted() {
-		return completed;
+	public CardBoardStatus getStaus() {
+		return status;
 	}
 
 	/**
 	 * Turns over a card on the game board.
 	 *
 	 * @param index The index of the card to be turned over.
-	 * @throws GameOverException              If the maximum failed attempts are
-	 *                                        reached.
 	 * @throws ArrayIndexOutOfBoundsException If the index is out of bounds.
 	 */
-	public void turnCard(int index) throws GameOverException, ArrayIndexOutOfBoundsException {
+	public void turnCard(int index) throws ArrayIndexOutOfBoundsException {
 		if (index >= 0 && index < cards.size()) {
 			final Card cardSelected = cards.get(index);
-			if (cardTurnedIndex == VALUE_DEFAULT_TURNED_INDEX) {
-				cardTurnedIndex = index;
+			if (firstCardTurnedIndex == VALUE_DEFAULT_TURNED_INDEX) {
+				firstCardTurnedIndex = index;
 				cardSelected.turn();
 			} else {
 
-				final Card previouslyTurnedCard = cards.get(cardTurnedIndex);
+				final Card previouslyTurnedCard = cards.get(firstCardTurnedIndex);
 
 				if (cardSelected.getPairIdentification().equals(previouslyTurnedCard.getPairIdentification())) {
 					cardSelected.setPaired(true);
 					previouslyTurnedCard.setPaired(true);
-					cardSelected.turn();
 					pairCounter++;
+					setDefaultPositions();
 					validateGameStatus();
-				} else {
-					previouslyTurnedCard.turn();
-					countFailedAttemp();
 				}
-				cardTurnedIndex = VALUE_DEFAULT_TURNED_INDEX;
-
+				secondCardTurnedIndex = index;
+				cardSelected.turn();
 			}
 		} else {
 			throw new ArrayIndexOutOfBoundsException("Invalid index");
 		}
+	}
+
+	/**
+	 * Turns over the second wrong card and handles the consequences.
+	 *
+	 * @throws GameOverException If the maximum failed attempts are reached.
+	 */
+	public void turnSecondWrongCard() throws GameOverException {
+		cards.get(firstCardTurnedIndex).turn();
+		cards.get(secondCardTurnedIndex).turn();
+
+		setDefaultPositions();
+		countFailedAttemp();
+	}
+
+	private void setDefaultPositions() {
+		firstCardTurnedIndex = VALUE_DEFAULT_TURNED_INDEX;
+		secondCardTurnedIndex = VALUE_DEFAULT_TURNED_INDEX;
 	}
 
 	/**
@@ -92,7 +112,7 @@ public class CardBoard {
 	 */
 	private void validateGameStatus() {
 		if (pairCounter == getTotalPairs()) {
-			completed = true;
+			status = CardBoardStatus.COMPLETED;
 		}
 	}
 
@@ -114,7 +134,7 @@ public class CardBoard {
 	private void countFailedAttemp() throws GameOverException {
 		failedAttempts++;
 		if (failedAttempts >= MAXIMUM_FAILED_ATTEMPS) {
-			completed = true;
+			status = CardBoardStatus.GAME_OVER;
 			throw new GameOverException("Game over");
 		}
 	}
