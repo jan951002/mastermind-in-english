@@ -1,7 +1,6 @@
 package com.poli.programmingparadigms.mastermindinenglish.domain.model;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
@@ -23,15 +22,15 @@ public class CardBoardTest {
 	}
 
 	@Test
-	public void testIsCompleted() {
+	public void onInit_theStatusShouldBeIN_PROGRESS() {
 		// When
-		final boolean result = cardBoard.isCompleted();
+		final CardBoardStatus result = cardBoard.getStaus();
 		// Then
-		assertFalse(result);
+		assertEquals(CardBoardStatus.IN_PROGRESS, result);
 	}
 
 	@Test
-	public void testTurnCardMatchingPairs() throws GameOverException {
+	public void cardMatchingPairs_theStatusShouldBeIN_PROGRESS() throws GameOverException {
 		// Given
 		CardBoard cardBoard = new CardBoard(getMatchingPairCards());
 
@@ -40,10 +39,10 @@ public class CardBoardTest {
 		cardBoard.turnCard(1);
 		cardBoard.turnCard(2);
 		cardBoard.turnCard(3);
-		final boolean result = cardBoard.isCompleted();
+		final CardBoardStatus result = cardBoard.getStaus();
 
 		// Then
-		assertTrue(result);
+		assertEquals(CardBoardStatus.COMPLETED, result);
 	}
 
 	@Test(expected = GameOverException.class)
@@ -54,10 +53,13 @@ public class CardBoardTest {
 		// When
 		cardBoard.turnCard(0);
 		cardBoard.turnCard(2);
+		cardBoard.turnSecondWrongCard();
 		cardBoard.turnCard(0);
 		cardBoard.turnCard(2);
+		cardBoard.turnSecondWrongCard();
 		cardBoard.turnCard(0);
 		cardBoard.turnCard(2);
+		cardBoard.turnSecondWrongCard();
 	}
 
 	@Test(expected = ArrayIndexOutOfBoundsException.class)
